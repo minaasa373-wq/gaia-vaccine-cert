@@ -194,7 +194,6 @@ body {
    ============================================================ */
 .row-owner {
   min-height: 12mm;
-  position: relative; /* 住所ラベルの絶対配置用 */
 }
 
 /* 氏名セル */
@@ -227,20 +226,17 @@ body {
   flex-shrink: 0;
 }
 
-/* 住所ラベル：氏名セル右端・上部に絶対配置 */
-.address-label {
-  position: absolute;
-  left: 72mm;
-  top: 3px;
-}
-
 /* 住所セル */
 .owner-address-cell {
   flex: 1;
   padding: 3px 5px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: space-between;
+}
+
+.owner-address-cell > .label-sm {
+  margin-left: 3em;
 }
 
 .address-input {
@@ -735,11 +731,9 @@ body {
         </div>
       </div>
 
-      <!-- 住所ラベル（絶対配置） -->
-      <span class="label-sm address-label">住所：</span>
-
       <!-- 住所セル -->
       <div class="owner-address-cell">
+        <span class="label-sm">住所：</span>
         <input type="text" id="address" class="field address-input" placeholder="">
       </div>
 
