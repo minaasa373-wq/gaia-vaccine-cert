@@ -210,7 +210,7 @@ body {
   display: flex;
   align-items: baseline;
   gap: 6px;
-  width: 100%;
+  align-self: stretch;
 }
 
 .owner-name-input {
@@ -226,17 +226,13 @@ body {
   flex-shrink: 0;
 }
 
-/* 住所セル */
+/* 住所セル：左 padding で住所ラベル・入力欄を品種の真上に揃える */
 .owner-address-cell {
   flex: 1;
-  padding: 3px 5px;
+  padding: 3px 5px 3px 8mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-}
-
-.owner-address-cell > .label-sm {
-  margin-left: 3em;
 }
 
 .address-input {
