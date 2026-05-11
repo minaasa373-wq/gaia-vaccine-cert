@@ -223,13 +223,16 @@ body {
 .sama {
   font-size: 18px;
   color: var(--color-text);
-  flex-shrink: 0;
+  flex: 0 0 auto;
+  width: 1em;
+  align-self: flex-end;
+  padding-bottom: 3px;
 }
 
-/* 住所セル：padding-left 8mm で住所ラベル・入力欄を品種の真上に揃える */
+/* 住所セル：72mm(name) + 1em(様) + calc(8mm - 1em) = 80mm = species-cell で品種の真上に揃える */
 .owner-address-cell {
   flex: 1;
-  padding: 3px 5px 3px 8mm;
+  padding: 3px 5px 3px calc(8mm - 1em);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -726,9 +729,11 @@ body {
         <div class="label-sm">所有者<br>氏　名：</div>
         <div class="owner-name-inner">
           <input type="text" id="ownerName" class="field owner-name-input" placeholder="　　　　　　　">
-          <span class="sama">様　</span>
         </div>
       </div>
+
+      <!-- 様（セル間に独立配置） -->
+      <span class="sama">様</span>
 
       <!-- 住所セル -->
       <div class="owner-address-cell">
