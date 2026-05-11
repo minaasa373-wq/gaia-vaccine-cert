@@ -199,40 +199,42 @@ body {
 /* 氏名セル */
 .owner-name-cell {
   flex: 0 0 72mm;
+  max-width: 72mm;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: flex-start;
   padding: 3px 5px;
 }
 
 .owner-name-inner {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  align-self: stretch;
 }
 
 .owner-name-input {
-  flex: 1;
+  flex: 1 1 0;
   min-width: 0;
+  max-width: 100%;
+  width: 0;
   font-size: 18px;
   text-align: center;
+  box-sizing: border-box;
 }
 
 .sama {
   font-size: 18px;
   color: var(--color-text);
-  flex: 0 0 auto;
-  width: 1em;
+  flex: 0 0 18px;
+  width: 18px;
   align-self: flex-end;
   padding-bottom: 3px;
 }
 
-/* 住所セル：72mm(name) + 1em(様) + calc(8mm - 1em) = 80mm = species-cell で品種の真上に揃える */
+/* 住所セル：72mm(name) + 18px(様) + calc(8mm - 18px) = 80mm = species-cell で品種の真上に揃える */
 .owner-address-cell {
   flex: 1;
-  padding: 3px 5px 3px calc(8mm - 1em);
+  padding: 3px 5px 3px calc(8mm - 18px);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
