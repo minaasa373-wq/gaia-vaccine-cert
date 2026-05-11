@@ -214,8 +214,7 @@ body {
 }
 
 .owner-name-input {
-  flex: 1;
-  min-width: 0;
+  width: 46mm;
   font-size: 18px;
   text-align: center;
 }
@@ -226,10 +225,10 @@ body {
   flex-shrink: 0;
 }
 
-/* 住所セル：左 padding で住所ラベル・入力欄を品種の真上に揃える */
+/* 住所セル：padding-left 8mm で住所ラベル・入力欄を品種の真上に揃える */
 .owner-address-cell {
   flex: 1;
-  padding: 3px 5px;
+  padding: 3px 5px 3px 8mm;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -657,8 +656,10 @@ body {
 /* ============================================================
    印刷スタイル
    ============================================================ */
+@page { size: A5 landscape; margin: 0; }
+
 @media print {
-  body { background: white; padding: 0; }
+  body { background: white; padding: 0; margin: 0; min-height: 0; }
   .control-panel, .no-print, .cal-icon-wrap { display: none !important; }
   .age-unit-select {
     -webkit-appearance: none;
@@ -670,8 +671,9 @@ body {
     margin: 0;
     width: 210mm;
     padding: 6mm 6mm 4mm;
+    page-break-inside: avoid;
+    break-inside: avoid;
   }
-  @page { size: A5 landscape; margin: 0; }
 }
 
 </style>
