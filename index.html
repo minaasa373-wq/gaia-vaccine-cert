@@ -1114,8 +1114,32 @@ function clearForm() {
   document.getElementById('speciesOther').style.display = 'none';
   document.getElementById('ageUnit').value = '歳';
 
+  // 自動縮小したフォントサイズもリセット
+  document.getElementById('breed').style.fontSize   = '';
+  document.getElementById('petName').style.fontSize = '';
+
   document.getElementById('statusMsg').textContent = '';
 }
+
+/* ----------------------------------------------------------
+   品種・名前の自動フォント縮小
+   文字数に応じてフォントサイズを下げ、印刷時に切れないようにする
+   ---------------------------------------------------------- */
+function autoShrinkFont(el) {
+  var len = el.value.length;
+  var size;
+  if      (len <= 6)  size = '13px';
+  else if (len <= 8)  size = '12px';
+  else if (len <= 10) size = '10.5px';
+  else if (len <= 12) size = '9.5px';
+  else                size = '8.5px';
+  el.style.fontSize = size;
+}
+
+['breed', 'petName'].forEach(function(id) {
+  var el = document.getElementById(id);
+  el.addEventListener('input', function() { autoShrinkFont(el); });
+});
 </script>
 </body>
 </html>
