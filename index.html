@@ -684,6 +684,10 @@ body {
   #breed {
     font-size: 10px !important;
   }
+  /* 名前は印刷時も13pxで固定（JSの自動縮小を無効化） */
+  #petName {
+    font-size: 13px !important;
+  }
 }
 
 </style>
@@ -1119,8 +1123,7 @@ function clearForm() {
   document.getElementById('ageUnit').value = '歳';
 
   // 自動縮小したフォントサイズもリセット
-  document.getElementById('breed').style.fontSize   = '';
-  document.getElementById('petName').style.fontSize = '';
+  document.getElementById('breed').style.fontSize = '';
 
   document.getElementById('statusMsg').textContent = '';
 }
@@ -1140,7 +1143,7 @@ function autoShrinkFont(el) {
   el.style.fontSize = size;
 }
 
-['breed', 'petName'].forEach(function(id) {
+['breed'].forEach(function(id) {
   var el = document.getElementById(id);
   el.addEventListener('input', function() { autoShrinkFont(el); });
 });
