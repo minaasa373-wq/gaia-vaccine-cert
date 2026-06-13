@@ -1018,9 +1018,6 @@ function submitAndPrint() {
   var vacDay   = document.getElementById('vacDay').value.trim();
   if (!vacYear || !vacMonth || !vacDay) missing.push('接種月日');
 
-  var vaccineChecked = ['vA','vB','vC','vD','vE','vF','vG','vH','vI','vJ','vK','vL','vM']
-    .some(function(id) { return document.getElementById(id).checked; });
-  if (!vaccineChecked) missing.push('ワクチン（1つ以上）');
 
   var lot1 = document.getElementById('lotNo1').value.trim();
   var lot2 = document.getElementById('lotNo2').value.trim();
