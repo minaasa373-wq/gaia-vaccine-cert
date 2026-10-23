@@ -23,7 +23,6 @@
   --color-text: #222;
   --color-muted: #444;
   --color-hint: #aaa;
-  --print-zoom: 1; /* 印刷時の縮小率（画面の「印刷倍率」で変更。JSが上書き） */
 }
 
 /* ============================================================
@@ -570,6 +569,9 @@ body {
 }
 
 /* 透明なdate inputをアイコンに重ねてタップを受け取る */
+/* 接種日の文字欄は表示専用（変更はカレンダーボタンから） */
+#vacYear, #vacMonth, #vacDay { pointer-events: none; }
+
 #vaccinationDate {
   position: absolute;
   top: 0;
@@ -731,8 +733,6 @@ body {
     break-inside: avoid;
     page-break-after: avoid;
     break-after: avoid;
-    /* 印刷倍率：プレビューで96%にしなくても1枚に収まるよう、ここで縮小する */
-    zoom: var(--print-zoom);
   }
   /* 印刷時は品種のフォントを小さくして切れを防ぐ */
   #breed {
@@ -755,23 +755,10 @@ body {
 <div class="control-panel">
   <button class="btn btn-secondary" onclick="clearForm()">クリア</button>
   <button class="btn btn-secondary" onclick="nextPet()" title="飼い主・住所・接種日はそのまま、動物の情報だけ消します">次の子へ</button>
-  <button class="btn btn-secondary" onclick="setToday()">今日</button>
   <label class="opt">次回
     <select id="nextInterval" onchange="onIntervalChange()">
       <option value="y1">1年後</option>
       <option value="m1">1ヶ月後</option>
-      <option value="w4">4週間後</option>
-      <option value="w3">3週間後</option>
-    </select>
-  </label>
-  <label class="opt">印刷倍率
-    <select id="printScale" onchange="onScaleChange()">
-      <option value="100">100%</option>
-      <option value="98">98%</option>
-      <option value="96">96%</option>
-      <option value="94">94%</option>
-      <option value="92">92%</option>
-      <option value="90">90%</option>
     </select>
   </label>
   <button class="btn btn-secondary" onclick="printOnly()">印刷のみ</button>
@@ -919,14 +906,14 @@ body {
         <!-- 接種月日 -->
         <div class="vaccine-date-row">
           <div class="date-label">接種<br>月日</div>
-          <input type="text" id="vacYear"  class="field date-input-year"  placeholder="年">
+          <input type="text" id="vacYear" readonly tabindex="-1"  class="field date-input-year"  placeholder="年">
           <span class="date-unit">年</span>
-          <input type="text" id="vacMonth" class="field date-input-month" placeholder="月">
+          <input type="text" id="vacMonth" readonly tabindex="-1" class="field date-input-month" placeholder="月">
           <span class="date-unit">月</span>
-          <input type="text" id="vacDay"   class="field date-input-day"   placeholder="日">
+          <input type="text" id="vacDay" readonly tabindex="-1"   class="field date-input-day"   placeholder="日">
           <span class="date-unit">日</span>
           <span class="cal-icon-wrap no-print">
-            <button type="button" class="cal-icon-btn" tabindex="-1" aria-label="カレンダーで日付を選択">
+            <button type="button" class="cal-icon-btn" tabindex="-1" aria-label="接種日を変更">
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
                 <line x1="16" y1="2" x2="16" y2="6"></line>
@@ -994,7 +981,6 @@ body {
 var GAS_URL = "https://script.google.com/macros/s/AKfycbwX3E82Y2ZmD69mfCKgtFP-rcZmk8fyAZhBG5O1298J6Ndo0m7_ChMkOxYenMgHyX9V/exec";
 
 var DRAFT_KEY    = 'gaiaVacCert.draft.v1';
-var SETTINGS_KEY = 'gaiaVacCert.settings.v1';
 
 /* ----------------------------------------------------------
    ユーティリティ
@@ -1024,12 +1010,10 @@ function setVaccinePreset(type) {
   // プリセットをチェック
   presetMap[type].forEach(function(id) { $(id).checked = true; });
 
-  // 種類が未選択なら、プリセットに合わせて自動で選ぶ
-  if (!$('s-dog').checked && !$('s-cat').checked && !$('s-other').checked) {
-    var sid = (type.indexOf('dog') === 0) ? 's-dog' : 's-cat';
-    $(sid).checked = true;
-    speciesCheck(sid);
-  }
+  // 種類もプリセットに合わせる（犬10種→猫3種と押し直した場合も切り替わる）
+  var sid = (type.indexOf('dog') === 0) ? 's-dog' : 's-cat';
+  $(sid).checked = true;
+  speciesCheck(sid);
   saveDraft();
 }
 
@@ -1068,10 +1052,6 @@ function setNextVisit(year, month, day) {
     var ty = year;
     if (tm > 11) { tm = 0; ty++; }
     next = new Date(ty, tm, Math.min(day, daysInMonth(ty, tm)));
-  } else if (iv === 'w4') {
-    next = new Date(year, month - 1, day + 28);
-  } else if (iv === 'w3') {
-    next = new Date(year, month - 1, day + 21);
   } else {
     next = new Date(year, month - 1, day);
     next.setFullYear(next.getFullYear() + 1);
@@ -1095,20 +1075,33 @@ function syncDate() {
   if (!d) return;
   var p = d.split('-');
   var y = parseInt(p[0], 10), m = parseInt(p[1], 10), day = parseInt(p[2], 10);
+  setVacDate(y, m, day);
+}
+
+// 接種日をセット（カレンダーの初期位置もそろえる）
+function setVacDate(y, m, day) {
   $('vacYear').value  = y;
   $('vacMonth').value = m;
   $('vacDay').value   = day;
+  $('vaccinationDate').value = y + '-' + ('0' + m).slice(-2) + '-' + ('0' + day).slice(-2);
   setNextVisit(y, m, day);
 }
 
-// 「今日」ボタン
-function setToday() {
+function todayKey() {
   var t = new Date();
-  var y = t.getFullYear(), m = t.getMonth() + 1, day = t.getDate();
-  $('vacYear').value  = y;
-  $('vacMonth').value = m;
-  $('vacDay').value   = day;
-  setNextVisit(y, m, day);
+  return t.getFullYear() + '-' + (t.getMonth() + 1) + '-' + t.getDate();
+}
+
+// 接種日を今日にする（起動時・クリア時。日付が変わった古い下書きも今日に直す）
+function ensureVacDate() {
+  var t = new Date();
+  var draftDay = null;
+  try { draftDay = localStorage.getItem(DRAFT_KEY + '.day'); } catch (e) {}
+  if (!$('vacYear').value || draftDay !== todayKey()) {
+    setVacDate(t.getFullYear(), t.getMonth() + 1, t.getDate());
+  } else {
+    setVacDate(parseInt($('vacYear').value, 10), parseInt($('vacMonth').value, 10), parseInt($('vacDay').value, 10));
+  }
 }
 
 // 次回の間隔を変えたら再計算
@@ -1135,39 +1128,6 @@ function autoIntervalFromAge() {
 $('age').addEventListener('change', autoIntervalFromAge);
 $('ageUnit').addEventListener('change', autoIntervalFromAge);
 
-// 手入力した場合（3つ全部揃ったら計算）
-['vacYear', 'vacMonth', 'vacDay'].forEach(function(id) {
-  $(id).addEventListener('change', recalcNextFromInputs);
-});
-
-/* ----------------------------------------------------------
-   印刷倍率（端末ごとに記憶）
-   ---------------------------------------------------------- */
-function onScaleChange() {
-  applyPrintScale();
-  saveSettings();
-}
-
-function applyPrintScale() {
-  var v = parseInt($('printScale').value, 10) || 100;
-  document.documentElement.style.setProperty('--print-zoom', (v / 100).toString());
-}
-
-function saveSettings() {
-  try {
-    localStorage.setItem(SETTINGS_KEY, JSON.stringify({
-      printScale:   $('printScale').value
-    }));
-  } catch (e) {}
-}
-
-function loadSettings() {
-  var s = null;
-  try { s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'); } catch (e) {}
-  // 初期値は100%（印刷時の改ページ対策で、等倍でも1枚に収まるようになった）
-  $('printScale').value   = (s && s.printScale)   || '100';
-  applyPrintScale();
-}
 
 /* ----------------------------------------------------------
    下書きの自動保存（誤ってリロードしても入力が消えない）
@@ -1188,6 +1148,7 @@ function saveDraft() {
       o[el.id] = (el.type === 'checkbox') ? el.checked : el.value;
     });
     localStorage.setItem(DRAFT_KEY, JSON.stringify(o));
+    localStorage.setItem(DRAFT_KEY + '.day', todayKey());
   } catch (e) {}
 }
 
@@ -1205,7 +1166,7 @@ function loadDraft() {
 }
 
 function clearDraft() {
-  try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+  try { localStorage.removeItem(DRAFT_KEY); localStorage.removeItem(DRAFT_KEY + '.day'); } catch (e) {}
 }
 
 // 入力のたびに保存（イベント委譲）
@@ -1438,6 +1399,7 @@ function clearForm() {
 
   lastSentSignature = '';
   clearDraft();
+  ensureVacDate();
   showStatus('', '');
 }
 
@@ -1497,8 +1459,9 @@ Array.prototype.forEach.call(document.querySelectorAll('.tap-cell'), function(ce
 /* ----------------------------------------------------------
    起動時の復元
    ---------------------------------------------------------- */
-loadSettings();
+try { localStorage.removeItem('gaiaVacCert.settings.v1'); } catch (e) {} // 旧「印刷倍率」の保存値を掃除
 loadDraft();
+ensureVacDate();
 fitStage();
 </script>
 </body>
