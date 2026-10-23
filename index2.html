@@ -753,7 +753,7 @@ body {
      ============================================================ -->
 <div id="stage">
 <div class="control-panel">
-  <button class="btn btn-secondary" onclick="clearForm()">クリア</button>
+  <button class="btn btn-secondary" onclick="clearForm()">新規入力</button>
   <button class="btn btn-secondary" onclick="nextPet()" title="飼い主・住所・接種日はそのまま、動物の情報だけ消します">次の子へ</button>
   <label class="opt">次回
     <select id="nextInterval" onchange="onIntervalChange()">
@@ -1109,24 +1109,6 @@ function onIntervalChange() {
   recalcNextFromInputs();
 }
 
-/* 年齢から次回の間隔を自動で選ぶ（過去の記録の傾向に合わせる）
-   〜2ヶ月 → 1ヶ月後（混合ワクチンの追加接種）
-   4ヶ月以上・○歳 → 1年後
-   3ヶ月 → 子によって違うので自動では変えない（画面上部で選ぶ） */
-function autoIntervalFromAge() {
-  var n = parseInt($('age').value, 10);
-  if (isNaN(n)) return;
-  var unit = $('ageUnit').value;
-  var iv = null;
-  if (unit === 'ヶ月' && n <= 2) iv = 'm1';
-  else if (unit === '歳' || n >= 4) iv = 'y1';
-  if (iv && $('nextInterval').value !== iv) {
-    $('nextInterval').value = iv;
-    recalcNextFromInputs();
-  }
-}
-$('age').addEventListener('change', autoIntervalFromAge);
-$('ageUnit').addEventListener('change', autoIntervalFromAge);
 
 
 /* ----------------------------------------------------------
@@ -1376,7 +1358,7 @@ function nextPet() {
    フォームクリア
    ---------------------------------------------------------- */
 function clearForm() {
-  if (!confirm('入力内容をクリアしますか？')) return;
+  if (!confirm('入力内容を消して、新規入力にしますか？')) return;
 
   // テキスト系
   ['ownerName','address','breed','petName','age',
