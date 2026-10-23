@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=820, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>予防接種証明書 - ガイア動物病院</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
@@ -23,7 +23,7 @@
   --color-text: #222;
   --color-muted: #444;
   --color-hint: #aaa;
-  --print-zoom: 0.96; /* 印刷時の縮小率（画面の「印刷倍率」で変更。JSが上書き） */
+  --print-zoom: 1; /* 印刷時の縮小率（画面の「印刷倍率」で変更。JSが上書き） */
 }
 
 /* ============================================================
@@ -32,8 +32,38 @@
 body {
   font-family: var(--font-main);
   background: #e8e8e8;
-  padding: 20px;
+  padding: 12px 8px;
 }
+
+/* ============================================================
+   ① 画面表示だけ拡大（印刷は実寸のまま）
+   --screen-zoom は JS が画面幅から計算して入れる
+   ============================================================ */
+#stage {
+  zoom: var(--screen-zoom, 1);
+  width: max-content;
+  margin: 0 auto;
+}
+
+/* ============================================================
+   ② タップ範囲を広げる（見た目・印刷レイアウトは変えない）
+   padding で当たり判定を広げ、同じ分の負のmarginで位置を戻す
+   ============================================================ */
+@media screen {
+  .check-item  { padding: 5px 4px; margin: -5px -4px; }
+  .field       { padding-top: 7px; margin-top: -7px; }
+  .age-unit-select { padding-top: 7px; padding-bottom: 3px; margin-top: -7px; margin-bottom: -3px; }
+  .vitem       { cursor: pointer; border-radius: 3px; }
+  .vitem:active { background: #eee; }
+  /* セルのどこを押しても中の入力欄にカーソルが入る */
+  .tap-cell    { cursor: text; }
+}
+
+/* 縦向きなど幅が狭いとき：プリセットボタンを証明書の上に横並び */
+#stage.stacked .cert-wrapper { flex-direction: column; align-items: stretch; gap: 10px; }
+#stage.stacked .preset-panel { flex-direction: row; padding-top: 0; }
+#stage.stacked .preset-btn   { flex: 1; width: auto; padding: 10px 8px; }
+#stage.stacked .preset-btn br { display: none; }
 
 /* ============================================================
    操作パネル（印刷時非表示）
@@ -685,6 +715,7 @@ body {
 @media print {
   html, body { height: auto; background: white; padding: 0; margin: 0; min-height: 0; }
   .control-panel, .no-print, .cal-icon-wrap { display: none !important; }
+  #stage { zoom: 1 !important; width: auto; margin: 0; }
   .cert-wrapper { display: block; margin: 0; }
   .age-unit-select {
     -webkit-appearance: none;
@@ -720,6 +751,7 @@ body {
 <!-- ============================================================
      操作パネル
      ============================================================ -->
+<div id="stage">
 <div class="control-panel">
   <button class="btn btn-secondary" onclick="clearForm()">クリア</button>
   <button class="btn btn-secondary" onclick="nextPet()" title="飼い主・住所・接種日はそのまま、動物の情報だけ消します">次の子へ</button>
@@ -779,7 +811,7 @@ body {
     <div class="cert-row row-owner">
 
       <!-- 氏名セル -->
-      <div class="owner-name-cell">
+      <div class="owner-name-cell tap-cell">
         <div class="label-sm">所有者<br>氏　名：</div>
         <div class="owner-name-inner">
           <input type="text" id="ownerName" class="field owner-name-input" placeholder="　　　　　　　">
@@ -790,7 +822,7 @@ body {
       <span class="sama">様</span>
 
       <!-- 住所セル -->
-      <div class="owner-address-cell">
+      <div class="owner-address-cell tap-cell">
         <span class="label-sm">住所：</span>
         <input type="text" id="address" class="field address-input" placeholder="">
       </div>
@@ -810,12 +842,12 @@ body {
         </div>
       </div>
 
-      <div class="breed-cell">
+      <div class="breed-cell tap-cell">
         <span class="row-label">品種：</span>
         <input type="text" id="breed" class="field std-input" placeholder="" maxlength="14">
       </div>
 
-      <div class="name-cell">
+      <div class="name-cell tap-cell">
         <span class="row-label">名前：</span>
         <input type="text" id="petName" class="field std-input" placeholder="" maxlength="14">
       </div>
@@ -834,13 +866,13 @@ body {
           <div>
             <div class="vcol-header">犬用ワクチン</div>
             <div class="vcol-list">
-              <div class="vitem"><input type="checkbox" id="vA"><span class="vid">A</span>犬ジステンパー</div>
-              <div class="vitem"><input type="checkbox" id="vB"><span class="vid">B</span>犬伝染性肝炎</div>
-              <div class="vitem"><input type="checkbox" id="vC"><span class="vid">C</span>犬アデノウイルス2型感染症</div>
-              <div class="vitem"><input type="checkbox" id="vD"><span class="vid">D</span>犬パラインフルエンザ</div>
-              <div class="vitem"><input type="checkbox" id="vE"><span class="vid">E</span>犬パルボウイルス感染症</div>
-              <div class="vitem"><input type="checkbox" id="vF"><span class="vid">F</span>犬コロナウイルス感染症</div>
-              <div class="vitem"><input type="checkbox" id="vG"><span class="vid">G</span>犬レプトスピラ病</div>
+              <label class="vitem"><input type="checkbox" id="vA"><span class="vid">A</span>犬ジステンパー</label>
+              <label class="vitem"><input type="checkbox" id="vB"><span class="vid">B</span>犬伝染性肝炎</label>
+              <label class="vitem"><input type="checkbox" id="vC"><span class="vid">C</span>犬アデノウイルス2型感染症</label>
+              <label class="vitem"><input type="checkbox" id="vD"><span class="vid">D</span>犬パラインフルエンザ</label>
+              <label class="vitem"><input type="checkbox" id="vE"><span class="vid">E</span>犬パルボウイルス感染症</label>
+              <label class="vitem"><input type="checkbox" id="vF"><span class="vid">F</span>犬コロナウイルス感染症</label>
+              <label class="vitem"><input type="checkbox" id="vG"><span class="vid">G</span>犬レプトスピラ病</label>
             </div>
           </div>
 
@@ -850,17 +882,17 @@ body {
           <div>
             <div class="vcol-header">猫用ワクチン</div>
             <div class="vcol-list">
-              <div class="vitem"><input type="checkbox" id="vH"><span class="vid">H</span>猫汎白血球減少症（伝染性腸炎）</div>
-              <div class="vitem"><input type="checkbox" id="vI"><span class="vid">I</span>猫ウイルス性鼻気管炎(FVR)</div>
-              <div class="vitem"><input type="checkbox" id="vJ"><span class="vid">J</span>猫カリシウイルス感染症</div>
-              <div class="vitem"><input type="checkbox" id="vK"><span class="vid">K</span>猫白血病ウイルス感染症</div>
-              <div class="vitem"><input type="checkbox" id="vL"><span class="vid">L</span>猫クラミジア感染症</div>
-              <div class="vitem"><input type="checkbox" id="vM"><span class="vid">M</span>猫免疫不全ウイルス感染症(FIV)</div>
+              <label class="vitem"><input type="checkbox" id="vH"><span class="vid">H</span>猫汎白血球減少症（伝染性腸炎）</label>
+              <label class="vitem"><input type="checkbox" id="vI"><span class="vid">I</span>猫ウイルス性鼻気管炎(FVR)</label>
+              <label class="vitem"><input type="checkbox" id="vJ"><span class="vid">J</span>猫カリシウイルス感染症</label>
+              <label class="vitem"><input type="checkbox" id="vK"><span class="vid">K</span>猫白血病ウイルス感染症</label>
+              <label class="vitem"><input type="checkbox" id="vL"><span class="vid">L</span>猫クラミジア感染症</label>
+              <label class="vitem"><input type="checkbox" id="vM"><span class="vid">M</span>猫免疫不全ウイルス感染症(FIV)</label>
             </div>
           </div>
 
         </div>
-        <div class="vother-row">
+        <div class="vother-row tap-cell">
           <span class="vother-label">その他：</span>
           <input type="text" id="vaccineOther" class="field vother-input" placeholder="">
         </div>
@@ -910,14 +942,14 @@ body {
         <div class="sticker-lot-block">
           <div class="sticker-lot-row">
             <div class="sticker-box">シール添付欄</div>
-            <div class="lot-box">
+            <div class="lot-box tap-cell">
               <div class="lot-label">製造番号</div>
               <input type="text" id="lotNo1" class="field lot-input" placeholder="">
             </div>
           </div>
           <div class="sticker-lot-row">
             <div class="sticker-box">シール添付欄</div>
-            <div class="lot-box">
+            <div class="lot-box tap-cell">
               <div class="lot-label">製造番号</div>
               <input type="text" id="lotNo2" class="field lot-input" placeholder="">
             </div>
@@ -952,6 +984,7 @@ body {
 </div><!-- /cert-outer -->
 
 </div><!-- /cert-wrapper -->
+</div><!-- /stage -->
 
 <!-- ============================================================
      JavaScript
@@ -1131,8 +1164,8 @@ function saveSettings() {
 function loadSettings() {
   var s = null;
   try { s = JSON.parse(localStorage.getItem(SETTINGS_KEY) || 'null'); } catch (e) {}
-  // 初回は 96%（これまでプレビューで設定していた倍率）
-  $('printScale').value   = (s && s.printScale)   || '96';
+  // 初期値は100%（印刷時の改ページ対策で、等倍でも1枚に収まるようになった）
+  $('printScale').value   = (s && s.printScale)   || '100';
   applyPrintScale();
 }
 
@@ -1429,10 +1462,44 @@ function autoShrinkFont(el) {
 });
 
 /* ----------------------------------------------------------
+   ① 画面幅に合わせて拡大（最大1.6倍）
+   ---------------------------------------------------------- */
+function fitStage() {
+  var stage = $('stage');
+  var avail = document.documentElement.clientWidth - 16;
+  stage.style.zoom = '1';                       // いったん等倍で実寸を測る
+  stage.classList.remove('stacked');
+  var natural = stage.getBoundingClientRect().width;
+  if (avail / natural < 1.15) {                 // 横に並べると小さくなる → ボタンを上へ
+    stage.classList.add('stacked');
+    natural = stage.getBoundingClientRect().width;
+  }
+  stage.style.zoom = '';
+  var z = Math.max(0.6, Math.min(1.6, avail / natural));
+  document.documentElement.style.setProperty('--screen-zoom', z.toFixed(3));
+}
+window.addEventListener('resize', fitStage);
+window.addEventListener('orientationchange', function() { setTimeout(fitStage, 300); });
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(fitStage);
+
+/* ----------------------------------------------------------
+   ② セルの余白をタップしても入力欄にカーソルが入る
+   ---------------------------------------------------------- */
+Array.prototype.forEach.call(document.querySelectorAll('.tap-cell'), function(cell) {
+  cell.addEventListener('click', function(ev) {
+    var t = ev.target.tagName;
+    if (t === 'INPUT' || t === 'SELECT' || t === 'LABEL') return;
+    var input = cell.querySelector('input[type="text"]');
+    if (input) input.focus();
+  });
+});
+
+/* ----------------------------------------------------------
    起動時の復元
    ---------------------------------------------------------- */
 loadSettings();
 loadDraft();
+fitStage();
 </script>
 </body>
 </html>
