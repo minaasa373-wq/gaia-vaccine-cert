@@ -762,7 +762,7 @@ body {
     </select>
   </label>
   <button class="btn btn-secondary" onclick="printOnly()">印刷のみ</button>
-  <button class="btn btn-primary" id="submitBtn" onclick="submitAndPrint()">送信 &amp; 印刷</button>
+  <button class="btn btn-primary" id="submitBtn" onclick="submitAndPrint()">送信＆印刷（横向きに変える、倍率100％）</button>
   <div class="status-msg" id="statusMsg"></div>
 </div>
 
@@ -1011,9 +1011,12 @@ function setVaccinePreset(type) {
   presetMap[type].forEach(function(id) { $(id).checked = true; });
 
   // 種類もプリセットに合わせる（犬10種→猫3種と押し直した場合も切り替わる）
-  var sid = (type.indexOf('dog') === 0) ? 's-dog' : 's-cat';
-  $(sid).checked = true;
-  speciesCheck(sid);
+  // ただし「その他」を選んでいるときは種類を変えない
+  if (!$('s-other').checked) {
+    var sid = (type.indexOf('dog') === 0) ? 's-dog' : 's-cat';
+    $(sid).checked = true;
+    speciesCheck(sid);
+  }
   saveDraft();
 }
 
